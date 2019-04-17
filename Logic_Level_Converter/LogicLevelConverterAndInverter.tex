@@ -1,0 +1,22 @@
+z% 18W MOSFET amplifier, with npn transistor.
+\begin{tikzpicture}[scale=2]
+	\draw[color=black]
+	(0,-0.5) node[ground]{}
+	(0,0) node[nfet,bodydiode](npn){}
+	
+	(npn.B)+(0.6,0) node[]{BSS138}
+	
+	(0,1.7) node[vcc]{$V_{SS}$=5V}
+	(0,1.7) to [R=$R_1$] (npn.D)
+	(npn.S) to (0,-0.5)
+	
+	(-1,0) node[anchor=north]{Input $\in [0;3.3$}
+	to[short,o-] (npn.G)
+	
+	(npn.D)+(1,0) node[anchor=south]{Output $\in [5;0]$}
+	to[short,o-*]  (npn.D)
+	
+	
+	;
+	
+\end{tikzpicture}

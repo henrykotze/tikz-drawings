@@ -1,0 +1,72 @@
+\documentclass[crop, tikz]{standalone}
+
+
+\usepackage[latin1]{inputenc}
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows}
+\begin{document}
+\pagestyle{empty}
+
+
+% Define block styles
+\tikzstyle{decision} = [diamond, draw, fill=blue!20, 
+    text width=5em, text badly centered, node distance=3cm, inner sep=0pt]
+\tikzstyle{block} = [rectangle, draw, fill=blue!20, 
+    text width=5em, text centered, rounded corners, minimum height=4em]
+\tikzstyle{line} = [draw, -latex']
+\tikzstyle{cloud} = [draw, ellipse,fill=red!20, node distance=3cm,
+    minimum height=2em]
+    \centering
+\begin{tikzpicture}[node distance = 2cm]
+    % Place nodes
+    \node [block] (init_perip) {Initialise Peripherals};
+    \node [block, below of=init_perip] (init_vars) {Initialise Variables};
+    \node [decision, below of=init_vars,node distance=2.5cm] (uart) {Byte received?};
+    % check command structure
+    \node [decision, right of=uart] (command_stuct) {Correct Structure?};
+    % yes, correct structure
+    \node [block, right of=command_stuct, node distance=3cm] (exec_command) {Execute Command};
+    
+    \node [block, below of=uart,node distance=2.5cm] (adc) {Inspect Sampling Data};
+    \node [decision, below of=adc] (encoder) {Edge on Encoder Signal};
+  %  \node [block, left of=evaluate, node distance=3cm] (update) {update model};
+    \node [decision, below of=encoder,node distance=3.5cm] (stream) {Stream data to PC?};
+    % yes, 
+    \node [decision, right of=stream,node distance=3.5cm] (stream_system_id) {System identification test};
+    \node [decision, right of=stream_system_id,node distance=3.5cm] (stream_experiments) {Experimental test};
+  
+  	\node [block, below of=stream_experiments,node distance=3cm] (torque) {Output PWM signal to motor};
+  
+    \node [block, right of=encoder, node distance=4cm] (encoder_op) {Update actuated pendulum position};
+    
+   % \node [block, below of=stream_system_id, node distance=2cm] (encoder_op) {Update actuated pendulum position};
+    
+  
+    
+    
+    
+    % Draw edges
+    \path [line] (init_perip) -- (init_vars);
+   	\path [line] (init_vars) -- (uart);
+    \path [line] (uart) -- node[near start,left]{no} (adc);
+    \path [line] (adc) -- node [near start]{}(encoder);
+    \path [line] (encoder) -- node[near start,left] {no}(stream);
+    \path [line,] (uart) -- node[above]{yes}(command_stuct);
+    \path [line,] (command_stuct) -- node[above]{yes}(exec_command);
+    \path [line,] (adc) -- node[]{}(encoder);
+    \path [line,] (encoder) -- node[]{}(stream);
+    \path [line,] (stream) -- node[above]{yes}(stream_system_id);
+    \path [line,] (stream_system_id) -- node[above]{no}(stream_experiments);
+    \path [line,] (stream_experiments) -- node[right]{yes}(torque);
+    \path [line,] (encoder) -- node[above]{yes}(encoder_op);
+    \path [line,] (command_stuct.south) |- node[near start,right]{no}(adc.east);
+    
+    
+    \path [line,] (stream.south) -- node[near start,left]{no}([yshift=-1cm]stream.south) -- ([xshift=-2cm,yshift=-1cm]stream.south) |- (uart.west)  ;
+    
+  %  \path [line,dashed] (system) -- (init);
+  %  \path [line,dashed] (system) |- (evaluate);
+\end{tikzpicture}
+
+
+\end{document}

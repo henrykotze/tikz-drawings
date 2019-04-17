@@ -1,0 +1,69 @@
+% System Combination
+% Harish K Krishnamurthy <www.ece.neu.edu/~hkashyap/>
+\documentclass[crop, tikz]{standalone}
+
+
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows,shadows}
+\usepackage{amsmath,bm,times}
+\newcommand{\mx}[1]{\mathbf{\bm{#1}}} % Matrix command
+\newcommand{\vc}[1]{\mathbf{\bm{#1}}} % Vector command
+
+\begin{document}
+% Define the layers to draw the diagram
+\pgfdeclarelayer{background}
+\pgfdeclarelayer{foreground}
+\pgfsetlayers{background,main,foreground}
+
+% Define block styles used later
+
+\tikzstyle{sensor}=[draw, fill=red!20, text width=5em, 
+    text centered, minimum height=2.5em,drop shadow,rounded corners]
+\tikzstyle{ann} = [above, text width=5em, text centered]
+\tikzstyle{wa} = [sensor, text width=10em, fill=red!20, 
+    minimum height=6em, rounded corners, drop shadow]
+\tikzstyle{sc} = [sensor, text width=13em, fill=red!20, 
+    minimum height=10em, rounded corners, drop shadow]
+
+% Define distances for bordering
+\def\blockdist{2.3}
+\def\edgedist{2.5}
+
+\begin{tikzpicture}
+    \node (wa) [wa]  {\textbf{Electronic Design} \\ PCB \\ Controller};
+    \path (wa.west)+(-\blockdist,0) node (asr1) [wa] {\textbf{External Computer} \\ };
+  	\path (wa.east)+(\blockdist,0) node (vote) [wa] {\textbf{Mechancical System} \\ State variables \\ };
+  	\path (wa.north)+(0,\blockdist/2) node (pow) [sensor] {\textbf{External Power}};
+  	\path (asr1.north)+(0,\blockdist/2) node (human) [sensor] {\textbf{Human Input} \\ };
+  	 
+
+    \path [draw, <->,thick] (asr1.east) -- node [above] {} 
+        (wa.west) ;
+   
+    \path [draw, <->,thick] (wa.east) -- node [above] {} 
+        (vote.west);
+     
+     \path [draw, <->,thick] (human.south) -- node [above] {} 
+     (asr1.north);   
+        
+     \path [draw,thick, ->] (pow.south) -- node [above] {} 
+     (wa.north);   
+
+               
+    \path (wa.south) +(0,-\blockdist/2) node (asrs) {System Overview};
+     \path (wa.south)+(0,-\blockdist/5) node (meep) {System Overview};
+     
+    \begin{pgfonlayer}{background}
+        \path (asr1.west |- asr1.north)+(-0.5,0.3) node (a) {};
+        \path (wa.south -| wa.east)+(+0.5,-0.3) node (b) {};
+        \path (vote.east |- asrs.east)+(+0.5,0.5) node (c) {};
+          
+        \path[fill=yellow!20,rounded corners, draw=black!50, dashed]
+            (a) rectangle (c);           
+        \path (asr1.north west)+(-0.2,0.2) node (a) {};
+            
+    \end{pgfonlayer}
+    
+    \end{tikzpicture}
+    
+\end{document}

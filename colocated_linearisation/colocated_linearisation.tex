@@ -1,0 +1,114 @@
+%\documentclass{article}
+\documentclass[crop, tikz]{standalone}
+
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows}
+\usepackage{amsmath,bm,times}
+\newcommand{\mx}[1]{\mathbf{\bm{#1}}} % Matrix command
+\newcommand{\vc}[1]{\mathbf{\bm{#1}}} % Vector command
+
+\begin{document}
+	\pagestyle{empty}
+	
+	% We need layers to draw the block diagram
+	\pgfdeclarelayer{background}
+	\pgfdeclarelayer{foreground}
+	\pgfsetlayers{background,main,foreground}
+	
+	% Define a few styles and constants
+	\tikzstyle{sensor}=[draw, fill=blue!20, text width=5em, 
+	text centered, minimum height=2em]
+	\tikzstyle{ann} = [above, text width=5em]
+	\tikzstyle{block} = [sensor, text width=6em, fill=red!20, 
+	minimum height=4em, rounded corners]
+	\tikzstyle{sum}=[draw, fill=red!20, circle, node distance = 2cm]
+	
+	\tikzstyle{longblock} = [sensor, text width=10em, fill=red!20, 
+	minimum height=4em, rounded corners,minimum width=6em]
+	
+	\def\blockdist{2.5}
+	\def\edgedist{2.5}
+	
+	
+	
+	\begin{tikzpicture}[scale=0.8]
+	% plant block
+	\node (plant) [block] {Non-Linear Plant};
+	
+	% collocated blovk
+	\path (plant)+(0,-\blockdist) node (collinear) [block] {Collocated\ Linearisation};
+	
+	% Annotation
+%	\path (plant)+(1.5*\blockdist,0) node (output) [ann] { [ $\ddot{\theta}$ \\ $\dot{\phi}$ ] };
+	
+	\path (plant)+(1.2*\blockdist,0) node (output) [ann] { 
+$\begin{bmatrix}
+$$\ddot{\theta}$$ \\ $$\ddot{\phi}$$ 
+\end{bmatrix}$
+};
+	
+	%sumation block 1
+	\path (plant)+(-\blockdist,0) node (suma1) [sum]{\Large$\Sigma$};
+	
+	% Non-linear control law
+	\path (plant)+(-2.2*\blockdist,0) node (nonlinear) [longblock]{Non-Linear Law \ $v = K_{p}(\phi^{d}-\phi)-K_{d}\dot{\phi}$};
+	
+	%sumation block 2
+	\path (nonlinear)+(-1.2*\blockdist,0) node (suma2) [sum]{\Large$\Sigma$};
+
+	% Desired input
+	\path (suma2)+(-1.2*\blockdist,0) node (desired) [longblock]{Desired Trajectory \ $\phi^{d} = \alpha \tan(\dot{\theta})$};
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	% plant to output	
+%	\draw [->,thick] (plant) -- node [anchor=north east] {} + (\edgedist,0) 
+%	node[right] {$[\theta$ $\phi$ $\dot{\theta}$ $\dot{\phi}$ $\ddot{\phi}$  $\ddot{\theta}]$};
+	
+	%plant to output
+	\draw [->,thick] (plant.east) -- ([xshift=1cm]plant.east) {};
+	% plant to collocated
+	\draw[->,thick] ([xshift=0.5cm]plant.east) -- ([xshift=0.5cm]collinear.east) -- (collinear.east) {};
+	
+	% collocated lineariation to Sigma
+	\draw[->,thick] (collinear.west) -| (suma1.south) {};
+	
+	%sigma to non-linear plant
+	\draw[->,thick] (suma1.east) -- (plant.west) {};
+	
+	% non-linear law to sigma
+	\draw[->,thick] (nonlinear.east) -- (suma1.west) {};
+	
+	% sigma2 to non linear
+	\draw[->,thick] (suma2.east) -- (nonlinear.west) {};
+
+	% Desired input to sigma
+	\draw[->,thick] (desired.east) -- (suma2.west) {};
+	
+	% collocated to sigm2
+	\draw[->,thick] (collinear.west) -| (suma2.south) {};
+	
+
+
+
+
+
+
+	% Now it's time to draw the colored IMU and INS rectangles.
+	% To draw them behind the blocks we use pgf layers. This way we  
+	% can use the above block coordinates to place the backgrounds   
+	\begin{pgfonlayer}{background}
+	% Compute a few helper coordinates
+%	\path (gyros.west |- naveq.north)+(-0.5,0.3) node (a) {};
+%	\path (INS.south -| naveq.east)+(+0.3,-0.2) node (b) {};
+	%\path[fill=yellow!20,rounded corners, draw=black!50, dashed]
+	%(a) rectangle (b);
+%	\path (gyros.north west)+(-0.2,0.2) node (a) {};
+	%\path (IMU.south -| gyros.east)+(+0.2,-0.2) node (b) {};
+%	\path[fill=blue!10,rounded corners, draw=black!50, dashed]
+%	(a) rectangle (b);
+	\end{pgfonlayer}
+
+\end{tikzpicture}
+
+	
+\end{document}

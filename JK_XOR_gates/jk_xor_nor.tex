@@ -1,0 +1,57 @@
+\def\JKFF(#1)#2#3{%
+	\begin{scope}[shift={(#1)}]
+		\draw (0,0) rectangle (1,1);
+		\draw (0.5,1) -- (0.5,0);
+		\draw (0.5,0.5) -- (1,0.5);
+		\node at (0.75,0.75) {$Q$};
+		\node at (0.75,0.25) {$\bar{Q}$};
+		\draw (1,0.8) -- +(0.25,0) coordinate (#2 Q);
+		\draw (0,0.2) node[right] {$K$} -- +(-0.25,0) coordinate (#2 K);
+		\draw (0,0.5) node[right] {$T$} -- +(-0.25,0) coordinate (#2 T);
+		\draw (0,0.8) node[right] {$J$} -- +(-0.25,0) coordinate (#2 J);
+	\end{scope}
+}	
+	
+	\begin{tikzpicture}[every path/.style={},>=triangle 45,cir1cuit logic US, every circuit symbol/.style={}]
+		
+		% JK FLIP FLIP LOCATION
+		\JKFF(0,0){a}{$Q_0$}
+		 %\draw[->] (a J) -- ++(0,1) node[left] {$+$};
+		 \draw (a Q) to[short] ++(1,0) node[ocirc,label={right:DIR}] (dir) {};
+		 
+		% NOR GATE LOCATIONS
+		\node[nor gate,inputs={nn}, point down] (nor1) at (-2,1.2) {};
+		
+		% NOR OUTPUT TO JK FLIPFLOP
+		\draw (nor1.output) [] -- ([xshift=-1.75cm]a K) -- (a K);
+		
+		% XOR LOCATION
+		\node[xor gate,inputs={nn}, point right] (xor1) at (0.5,2) {};
+		
+		% XOR OUTPUT
+		\draw (xor1.output) [] -- ++(1.2,0) node[ocirc,label={right:STEP}] (step) {};
+	
+		% PHASE A AND PHASE B LOCATION
+		\draw (-3,0)+( xor1.input 2) node[ocirc,label={left:PHASE B}] (phaseB) {};
+		\draw (-3,0.2)+( xor1.input 1) node[ocirc,label={left:PHASE A}] (phaseA) {};
+		
+		% PHASE A to XOR GATE
+		\draw[-](phaseA) -- ([xshift=-0.5cm,yshift=0.2cm] xor1.input 1) -- ([xshift=-0.5cm] xor1.input 1) -- (xor1.input 1) ;
+		\draw (phaseB) -- (xor1.input 2);
+		
+		% CONNECTING INPUTS OF NOR GATE
+		\draw[-](nor1.input 1) -- ([yshift=0.2cm]nor1.input 1) -- ([yshift=0.2cm]nor1.input 2);
+		\draw[-](nor1.input 2) -- ([yshift=0.2cm]nor1.input 2);
+		
+		% CONNECTING PHASE A TO NOR INPUT
+		\draw[-*]([xshift=0.1cm, yshift=0.2cm]nor1.input 2) -- ([xshift=0.1cm, yshift=0.88cm]nor1.input 2);
+		
+		% CONNECTION JK FLIPFLOP J to PHASE A
+		\draw[-*](a J) -- ([xshift=-0.145cm] a J) -- ([xshift=-0.145cm,yshift=1.4cm] a J);
+		
+		% CONNECTION JK FLIPFLOP T to PHASE B
+		\draw[-*](a T) -- ([xshift=-0.5cm] a T) -- ([xshift=-0.5cm,yshift=1.47cm] a T);
+		
+	%\draw[->] (a J) -- ++(0,1) node[left] {$+$};
+	
+	\end{tikzpicture}

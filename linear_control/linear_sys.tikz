@@ -1,0 +1,55 @@
+
+% Define distances for bordering
+\newcommand{\mx}[1]{\mathbf{\bm{#1}}} % Matrix command
+\newcommand{\vc}[1]{\mathbf{\bm{#1}}} % Vector command
+\pgfdeclarelayer{background}
+\pgfdeclarelayer{foreground}
+\pgfsetlayers{background,main,foreground}
+
+\tikzstyle{sensor}=[draw, fill=blue!20, text width=5em, 
+text centered, minimum height=2.5em,drop shadow]
+\tikzstyle{ann} = [above, text width=5em, text centered]
+\tikzstyle{wa} = [sensor, text width=10em, fill=red!20, 
+minimum height=6em, rounded corners, drop shadow]
+\tikzstyle{sc} = [sensor, text width=13em, fill=red!20, 
+minimum height=10em, rounded corners, drop shadow]
+
+\def\blockdist{2.3}
+\def\edgedist{2.5}
+
+\begin{tikzpicture}
+
+    \node (wa) [sensor]  {$\boldsymbol{\dot{x}}= \boldsymbol{A}\boldsymbol{x}+\boldsymbol{B}$};
+    \path (wa.south)+(0,-1) node (feedback) [sensor] {$u = -\boldsymbol{K}\boldsymbol{x}$};
+   
+    \path (wa.east)+(\blockdist/1.5,0) node (C) [sensor] {$\boldsymbol{C}$};
+	\path (C.east)+(\blockdist/1.5,0) node (Y) [sensor] {$\boldsymbol{y}$};
+
+
+    \path [draw, ->,thick] (wa.east) -- node [above] {} 
+        (C.west);
+        
+    \path [draw, ->,thick] (C.south) |- node [above] {} 
+		(feedback.east);
+		
+   \path [draw, ->,thick] (C.east) -- (Y.west);
+
+  \path [draw, ->,thick] (feedback.west) -| ([xshift=-1cm]wa.west) -- (wa.west) {};
+
+    %\path [draw, ->,] (C.east) -- node [above] {} 
+	%	(Y.west);
+               
+    %\path (wa.south) +(0,-\blockdist) node (asrs) {System Combination - Training};
+  
+    %\begin{pgfonlayer}{background}
+     %   \path (asr1.west |- asr1.north)+(-0.5,0.3) node (a) {};
+      %  \path (wa.south -| wa.east)+(+0.5,-0.3) node (b) {};
+       % \path (C.east |- asrs.east)+(+0.5,-0.5) node (c) {};
+          
+        %\path[fill=yellow!20,rounded corners, draw=black!50, dashed]
+         %   (a) rectangle (c);           
+       % \path (asr1.north west)+(-0.2,0.2) node (a) {};
+           
+    %\end{pgfonlayer}
+    
+    \end{tikzpicture}
