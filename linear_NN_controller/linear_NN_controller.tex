@@ -1,0 +1,110 @@
+% System Combination
+% Harish K Krishnamurthy <www.ece.neu.edu/~hkashyap/>
+\documentclass[crop, tikz]{standalone}
+
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows,shadows}
+\usepackage{amsmath,bm,times}
+\newcommand{\mx}[1]{\mathbf{\bm{#1}}} % Matrix command
+\newcommand{\vc}[1]{\mathbf{\bm{#1}}} % Vector command
+
+\begin{document}
+	% Define the layers to draw the diagram
+	\pgfdeclarelayer{background}
+	\pgfdeclarelayer{foreground}
+	\pgfsetlayers{background,main,foreground}
+	
+	% Define block styles used later
+	
+	\tikzstyle{sensor}=[draw, fill=blue!20, text width=5em, 
+	text centered, minimum height=2.5em,drop shadow]
+	\tikzstyle{ann} = [above, text width=5em, text centered]
+	\tikzstyle{wa} = [sensor, text width=10em, fill=red!20, 
+	minimum height=6em, rounded corners, drop shadow]
+	\tikzstyle{sc} = [sensor, text width=13em, fill=red!20, 
+	minimum height=10em, rounded corners, drop shadow]
+	
+	\tikzstyle{sum}=[draw, fill=blue!20, circle, node distance = 2cm]
+	
+	% Define distances for bordering
+	\def\blockdist{2.3}
+	\def\edgedist{2.5}
+	
+	\begin{tikzpicture}
+	
+	% Controller
+	\node (controller) [sensor]  {Stabilizing Controller};
+
+	
+	% Summation feedback
+	\path (controller)+(-\blockdist/1.2,0) node (suma1) [sum]{\Large$\Sigma$};
+	
+	% Reference
+	\node at ([xshift=-1cm]suma1.west) (reference) {$r$};
+
+	
+	% Summation feedforward
+	\path (controller)+(\blockdist/1.2,0) node (suma2) [sum]{\Large$\Sigma$};
+	
+	% Plant
+	\path (suma2.east)+(\blockdist/1.5,0) node (plant) [sensor] {Plant};
+	
+	% Estimation
+	\path (plant.north)+(0,\blockdist/2) node (estimate) [sensor] {Adjustment Mechanism};
+	
+	
+	% NN Inverse Model
+	\node at ([yshift=1.15cm]controller.north)[sensor] (model) {NN Inverse Plant Model};
+	
+	% Controller Output
+	\node at ([xshift=0.25cm,yshift=-0.15cm]suma2.east) (u) {$u$};
+	
+	
+		
+	% y, outputs
+	\node at ([xshift=0.5cm]plant.east) (y) {$y$};
+
+	% y_m, outputs
+	%\node at ([xshift=0.5cm,yshift=0.15cm]model.east) (ym) {$y_{m}$};
+	
+	
+	% Controller to feedforward sum
+	\path [draw, ->,thick] (controller.east) -- (suma2.west);
+	
+
+	% output of plant to estimation
+	\path [draw, ->,thick] (plant.east) -- ([xshift=0.25cm]plant.east) |- (estimate.east);
+	
+	
+	% input of plant to estimation
+	\path [draw, ->,thick] (plant.west) + (-0.25,0) |- (estimate.west);
+	
+
+
+	%output of plant to sum, Feedback path
+	\path [draw, ->,thick] (plant.east) -| ([xshift=0.25cm,yshift=-1cm]plant.east) -- ([yshift=-0.6cm]suma1.south) |- (suma1.south);
+	
+	
+	% sum to Controller
+	\path [draw, ->,thick] (suma1.east) -- (controller.west);
+	
+	% Reference so Feedback sum
+	\path [draw, ->,thick] (reference.east) -- (suma1.west);
+	
+	
+	% NN Model to Feedforward Summation
+	\path [draw,->,thick] (model.south) |- ([yshift=0.2cm]suma2.north) -- (suma2.north);
+	
+	% Reference to NN model
+	\path [draw,->,thick] ([xshift=0.5cm]reference.east) |- (model.west);
+	
+	% Feedforward sum to plant
+	\path [draw,->,thick] (suma2.east) -- (plant.west);
+	
+	% Adjustment to NN Model
+	\path [draw,->,thick] (estimate.north) -- ([yshift=1cm]estimate.north) -| (model.north);
+	
+	
+	\end{tikzpicture}
+	
+\end{document}}

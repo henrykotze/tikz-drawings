@@ -1,0 +1,145 @@
+% Define distances for bordering
+\newcommand{\mx}[1]{\mathbf{\bm{#1}}} % Matrix command
+\newcommand{\vc}[1]{\mathbf{\bm{#1}}} % Vector command
+\pgfdeclarelayer{background}
+\pgfdeclarelayer{foreground}
+\pgfsetlayers{background,main,foreground}
+
+\tikzstyle{sensor}=[draw, fill=blue!20, text width=5em, 
+text centered, minimum height=2.5em,drop shadow]
+\tikzstyle{ann} = [above, text width=5em, text centered]
+\tikzstyle{wa} = [sensor, text width=10em, fill=red!20, 
+minimum height=6em, rounded corners, drop shadow]
+\tikzstyle{sc} = [sensor, text width=13em, fill=red!20, 
+minimum height=10em, rounded corners, drop shadow]
+	\tikzstyle{sum}=[draw, fill=blue!20, circle, node distance = 2cm]
+
+\def\blockdist{2.3}
+\def\edgedist{2.5}
+
+\begin{tikzpicture}
+
+% Controller
+\node (controller) [sensor]  {Controller};
+
+% Adaption
+\path (controller.south)+(0,-\blockdist/1.5) node (adapt) [sensor] {Adaptation Algorithm};
+
+
+% Summation feedback
+\path (controller)+(-\blockdist/1.2,0) node (suma1) [sum]{\Large$\Sigma$};
+
+% Reference
+\node at ([xshift=-1cm]suma1.west) (reference) {$r$};
+
+
+% Summation feedforward
+\path (controller)+(\blockdist/1.2,0) node (suma2) [sum]{\Large$\Sigma$};
+
+% Plant
+\path (suma2.east)+(\blockdist/1.5,0) node (plant) [sensor] {Plant};
+
+% Estimation
+\path (plant.south)+(0,-0.5*\blockdist) node (nn_model) [sensor] {NN Plant Model};
+
+
+% NN Inverse Plant Model
+\node at ([yshift=-1.5*\blockdist cm]plant.north)[sensor] (inverse_model) {NN Inverse Plant Model};
+
+% Reference Model
+\node at ([yshift=-0.5*\blockdist cm]inverse_model.south)[sensor] (ref_model) {Reference Model};
+
+% Reference Model summation
+\path (ref_model)+(1.7*\blockdist,0.8cm) node (ref_sum) [sum]{\Large$\Sigma$};
+
+% Controller Output
+\node at ([xshift=0.25cm,yshift=0.15cm]suma2.east) (u) {$u$};
+
+% Sensor noise sum
+\path (plant)+(\blockdist/1.2,0) node (noise_sum) [sum]{\Large$\Sigma$};
+
+% Noise and disturbance summation
+\path (nn_model)+(1.2*\blockdist,0) node (noise_disturb_sum) [sum]{\Large$\Sigma$};	
+
+%y_m, outputs
+\node at ([xshift=0.5cm,yshift=0.15cm]nn_model.east) (ym) {$y_{m}$};
+
+% Sensor Noise
+\node at ([yshift=0.5cm]noise_sum.north) (sen_noise) {Sensor Noise};
+
+% Disturbances
+\node at ([yshift=1cm]plant.north) (disurb) {Disturbances};
+
+% Plant Output
+\node at ([xshift=2cm,yshift=0.2cm]noise_sum.east) (plant_output) {Plant Output};
+
+% Tracking Error
+\node at ([xshift=2.2cm,yshift=0.5cm]ref_model.north) (plant_output) {Tracking Error};
+
+
+
+
+%===================================================================================
+
+% Plant Output Arrow
+\path [draw, ->,thick] ([xshift=0.4cm]noise_sum.east) -- ([xshift=3.5cm]plant.east);
+
+% Reference input to  reference model
+\path [draw, ->,thick] ([xshift=0.4cm]reference.east) |- (ref_model.west);
+
+% disturbances to plant
+\path [draw, ->,thick] (disurb.south) -- (plant.north);
+
+% Sensor noise to noise sum
+\path [draw, ->,thick] (sen_noise.south) -- (noise_sum.north);	
+
+% noise sum to ref sum
+\path [draw, ->,thick] (noise_sum.east) -| (ref_sum.north);
+
+% Controller to feedforward sum
+\path [draw, ->,thick] (controller.east) -- (suma2.west);
+
+
+% output of plant noise sum
+\path [draw, ->,thick] (plant.east) -- (noise_sum.west);
+
+
+% input of plant to estimation
+\path [draw, ->,thick] (plant.west) + (-0.25,0) |- (nn_model.west);
+
+% NN plant model to summation	
+\path [draw, ->,thick] (nn_model.east) -- (noise_disturb_sum.west);
+
+% sum to Controller
+\path [draw, ->,thick] (suma1.east) -- (controller.west);
+
+% Reference so Feedback sum
+\path [draw, ->,thick] (reference.east) -- (suma1.west);
+
+
+% NN Model to Feedforward Summation
+\path [draw,->,thick] (inverse_model.west) -| (suma2.south);
+
+% Reference to NN model
+%\path [draw,->,thick] ([xshift=0.5cm]reference.east) |- (model.west);
+
+% Feedforward sum to plant
+\path [draw,->,thick] (suma2.east) -- (plant.west);
+
+% noise sum to disturbance sum
+\path [draw,->,thick] (noise_sum.east) -| (noise_disturb_sum.north);
+
+% disturbance_noise sum to invers plant model
+\path [draw,->,thick] (noise_disturb_sum.south) |- (inverse_model.east);
+
+% Reference model to reference sum
+\path [draw,->,thick] (ref_model.east) -| (ref_sum.south);
+
+% reference sum to adaptation
+\path [draw,->,thick] (ref_sum.west) -| (adapt.south);
+
+% Adaptation to Controller
+\path [draw,->,thick] (adapt.north) -- (controller.south);
+
+
+\end{tikzpicture}

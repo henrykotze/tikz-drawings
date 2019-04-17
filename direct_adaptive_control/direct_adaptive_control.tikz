@@ -1,0 +1,90 @@
+% Define distances for bordering
+\newcommand{\mx}[1]{\mathbf{\bm{#1}}} % Matrix command
+\newcommand{\vc}[1]{\mathbf{\bm{#1}}} % Vector command
+\pgfdeclarelayer{background}
+\pgfdeclarelayer{foreground}
+\pgfsetlayers{background,main,foreground}
+
+\tikzstyle{sensor}=[draw, fill=blue!20, text width=5em, 
+text centered, minimum height=2.5em,drop shadow]
+\tikzstyle{ann} = [above, text width=5em, text centered]
+\tikzstyle{wa} = [sensor, text width=10em, fill=red!20, 
+minimum height=6em, rounded corners, drop shadow]
+\tikzstyle{sc} = [sensor, text width=13em, fill=red!20, 
+minimum height=10em, rounded corners, drop shadow]
+
+\def\blockdist{2.3}
+\def\edgedist{2.5}
+
+		\begin{tikzpicture}
+	
+	% Controller
+	\node (controller) [sensor]  {Controller};
+	
+	% Reference
+	\node at ([xshift=-1cm]controller.west) (reference) {$r$};
+	
+	% Controller Output
+	\node at ([xshift=0.25cm,yshift=-0.15cm]controller.east) (u) {$u$};
+	
+	% Plant
+	\path (controller.east)+(\blockdist/1.5,0) node (plant) [sensor] {Plant};
+	
+	% Estimation
+	\path (plant.north)+(0,\blockdist/2) node (estimate) [sensor] {Estimation};
+	
+	% Adaption
+	\path (estimate.west)+(-\blockdist/1.5,0) node (design) [sensor] {Adaptation};
+	
+	% y, outputs
+	\node at ([xshift=0.5cm]plant.east) (y) {$y$};
+	
+	
+	
+	\path [draw, ->,thick] (controller.east) -- node [above] {} 
+	(plant.west);
+	
+	
+	
+	% output of plant to estimation
+	\path [draw, ->,thick] (plant.east) -- ([xshift=0.25cm]plant.east) |- (estimate.east);
+	
+	
+	% input of plant to estimation
+	\path [draw, ->,thick] (plant.west) + (-0.25,0) |- (estimate.west);
+	
+	%Estimation to Adapation
+	\path [draw, ->,thick] (estimate.north) -- ([yshift=0.5cm]estimate.north)  -| (design.north);
+	
+	
+	% Adapation to Controller top
+	\path [draw, -,thick] (design.south) -- (controller.north);
+	
+	% Adapation to Controller skew bottom
+	\path [draw,->,thick] ([xshift=0.2cm]controller.south) -- ([xshift=0.5cm,yshift=-0.3cm]controller.south);
+	
+	%output of plant to Controller, Feedback path
+	\path [draw, ->,thick] (plant.east) -| ([xshift=0.25cm,yshift=-1cm]plant.east) -- ([xshift=-0.5cm,yshift=-1cm]controller.west) |- ([yshift=-0.2cm]controller.west);
+	
+	
+	% Reference to Controller
+	\path [draw, ->,thick] (reference.east) -- (controller.west);
+	
+	
+	%\path [draw, ->,] (C.east) -- node [above] {} 
+	%	(Y.west);
+	
+	%\path (wa.south) +(0,-\blockdist) node (asrs) {System Combination - Training};
+	
+	%\begin{pgfonlayer}{background}
+	%   \path (asr1.west |- asr1.north)+(-0.5,0.3) node (a) {};
+	%  \path (wa.south -| wa.east)+(+0.5,-0.3) node (b) {};
+	% \path (C.east |- asrs.east)+(+0.5,-0.5) node (c) {};
+	
+	%\path[fill=yellow!20,rounded corners, draw=black!50, dashed]
+	%   (a) rectangle (c);           
+	% \path (asr1.north west)+(-0.2,0.2) node (a) {};
+	
+	%\end{pgfonlayer}
+	
+	\end{tikzpicture}

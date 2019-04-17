@@ -1,0 +1,115 @@
+% System Combination
+% Harish K Krishnamurthy <www.ece.neu.edu/~hkashyap/>
+\documentclass[crop, tikz]{standalone}
+
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows,shadows}
+\usepackage{amsmath,bm,times}
+\newcommand{\mx}[1]{\mathbf{\bm{#1}}} % Matrix command
+\newcommand{\vc}[1]{\mathbf{\bm{#1}}} % Vector command
+
+\begin{document}
+	% Define the layers to draw the diagram
+	\pgfdeclarelayer{background}
+	\pgfdeclarelayer{foreground}
+	\pgfsetlayers{background,main,foreground}
+	
+	% Define block styles used later
+	
+	\tikzstyle{sensor}=[draw, fill=blue!20, text width=5em, 
+	text centered, minimum height=2.5em,drop shadow]
+	\tikzstyle{ann} = [above, text width=5em, text centered]
+	\tikzstyle{wa} = [sensor, text width=10em, fill=red!20, 
+	minimum height=6em, rounded corners, drop shadow]
+	\tikzstyle{sc} = [sensor, text width=13em, fill=red!20, 
+	minimum height=10em, rounded corners, drop shadow]
+	
+	\tikzstyle{sum}=[draw, fill=blue!20, circle, node distance = 2cm]
+	\tikzstyle{pi}=[draw, fill=blue!20, circle, node distance = 2cm]
+	
+	% Define distances for bordering
+	\def\blockdist{2.3}
+	\def\edgedist{2.5}
+	
+	\begin{tikzpicture}
+	
+	% Controller
+	\node (controller) [sensor]  {$\boldsymbol{K}$};
+
+	
+	% Summation feedback
+	\path (controller)+(-\blockdist/1.2,0) node (suma1) [sum]{\Large$\Sigma$};
+	
+	% Reference
+	\node at ([xshift=-1cm]suma1.west) (reference) {$r$};
+	
+	% Label for the control input
+	\node at ([xshift=-0.5cm,yshift=-1cm]controller.south) (u) { $\boldsymbol{u}=\frac{1}{g(\boldsymbol{x})}[-f(\boldsymbol{x})+\boldsymbol{K}r]$ };
+	
+	% Summation feedforward
+	\path (controller)+(\blockdist/1.2,0) node (suma2) [sum]{\Large$\Sigma$};
+	
+	
+	%Pi
+	\path (suma2.east)+(0.4*\blockdist,0) node (pi) [pi]{\Large$\Pi$};
+
+	% Plant
+	\path (pi.east)+(0.8*\blockdist,0) node (plant) [sensor] {Plant};
+	
+	
+	% g
+	\node at ([yshift=-1.15cm]plant.south)[sensor] (g) {$\hat{g}$};
+	
+	% f
+	\node at ([yshift=-2.15cm]plant.south)[sensor] (f) {$\hat{f}$};		
+	
+	
+	% Controller Output
+	\node at ([xshift=0.25cm,yshift=-0.15cm]pi.east) (u) {$u$};
+	
+	
+		
+	% y, outputs
+	\node at ([xshift=0.5cm]plant.east) (y) {$y$};
+	
+	
+	% Controller to feedforward sum
+	\path [draw, ->,thick] (controller.east) -- (suma2.west);
+	
+
+	% plant to g
+	\path [draw, ->,thick] (plant.east) -- ([xshift=0.25cm]plant.east) |- (g.east);
+	
+	% plant to f
+	\path [draw, ->,thick] (plant.east) -- ([xshift=0.25cm]plant.east) |- (f.east);
+	
+	
+
+	%output of plant to sum, Feedback path
+	\path [draw, ->,thick] (plant.east) -| ([xshift=0.25cm,yshift=1cm]plant.east) -- ([yshift=0.6cm]suma1.north) -- (suma1.north);
+	
+	
+	% sum to Controller
+	\path [draw, ->,thick] (suma1.east) -- (controller.west);
+	
+	% Reference so Feedback sum
+	\path [draw, ->,thick] (reference.east) -- (suma1.west);
+	
+	
+	% g to pi
+	\path [draw,->,thick] (g.west) -|  (pi.south);
+	
+	
+	% f to sum
+	\path [draw,->,thick] (f.west) -|  (suma2.south);
+	
+	
+	% Feedforward sum to Pi
+	\path [draw,->,thick] (suma2.east) -- (pi.west);
+	
+	% Pi to plant
+	\path [draw,->,thick] (pi.east) -- (plant.west);	
+	
+	\end{tikzpicture}
+	
+\end{document}}
