@@ -58,7 +58,6 @@
 	% NN
 	\node at ([yshift=-1.5*\blockdist cm]plant.north)[sensor] (inverse_model) {Neural Network};
 	
-
 	
 	% Controller Output
 	\node at ([xshift=0.25cm,yshift=0.15cm]suma2.east) (u) {$u$};
@@ -70,10 +69,14 @@
 	\path (nn_model)+(1.2*\blockdist,0) node (noise_disturb_sum) [sum]{\Large$\Sigma$};	
 
 	%y_m, outputs
-	\node at ([xshift=0.5cm,yshift=0.15cm]nn_model.east) (ym) {$y_{m}$};
+	\node at ([xshift=0.5cm,yshift=0.2cm]nn_model.east) (ym) {$y^{*}$};
 	
 	% Sensor Noise
 	\node at ([yshift=0.5cm]noise_sum.north) (sen_noise) {Sensor Noise};
+	
+	% True Output
+	\node at ([xshift=0.5cm,yshift=0.2cm]noise_sum.east) (y) {$\hat{y}$};
+	
 	
 	% Disturbances
 	\node at ([yshift=1cm]plant.north) (disurb) {Disturbances};
@@ -87,8 +90,26 @@
 	% Error 
 	\node at ([xshift=0.25cm,yshift=-0.2cm]noise_disturb_sum.south) (model_error) {$e_{m}$};
 	
+	% Neural network ouput
+	\node at ([xshift=0.4cm,yshift=-0.3cm]suma2.south) (u_nn) {$u_{NN}$};
+	
+	% Linear Controller Output
+	\node at ([xshift=0.3cm,yshift=0.3cm]controller.east) (u_ln) {$u^{*}$};	
+	
+	% neural network states input
+	\node at ([xshift=1.1cm,yshift=-0.3cm]inverse_model.east) (u_ln) {$x[n-1]$};
+	
+	% neural network control input
+	\node at ([xshift=0.7cm,yshift=0.3cm]inverse_model.east) (u_ln) {$u^{*}$};
 	
 	%===================================================================================
+	
+	
+	% Neural network states input
+	\path [draw, ->,thick] ([xshift=0.4cm,yshift=0.3cm]inverse_model.east) -- ([yshift=0.3cm]inverse_model.east);
+	
+	% Neural network states input
+	\path [draw, ->,thick] ([xshift=0.4cm,yshift=-0.3cm]inverse_model.east) -- ([yshift=-0.3cm]inverse_model.east);
 	
 	% Plant Output Arrow
 	\path [draw, ->,thick] ([xshift=0.4cm]noise_sum.east) -- ([xshift=3.5cm]plant.east);

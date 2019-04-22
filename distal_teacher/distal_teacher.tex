@@ -1,0 +1,74 @@
+% System Combination
+% Harish K Krishnamurthy <www.ece.neu.edu/~hkashyap/>
+\documentclass[crop, tikz]{standalone}
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows,shadows}
+\usepackage{amsmath,bm,times}
+\newcommand{\mx}[1]{\mathbf{\bm{#1}}} % Matrix command
+\newcommand{\vc}[1]{\mathbf{\bm{#1}}} % Vector command
+
+\begin{document}
+	% Define the layers to draw the diagram
+	\pgfdeclarelayer{background}
+	\pgfdeclarelayer{foreground}
+	\pgfsetlayers{background,main,foreground}
+	
+	% Define block styles used later
+	
+	\tikzstyle{sensor}=[draw, fill=blue!20, text width=5em, 
+	text centered, minimum height=2.5em,drop shadow]
+	\tikzstyle{ann} = [above, text width=5em, text centered]
+	\tikzstyle{wa} = [sensor, text width=10em, fill=red!20, 
+	minimum height=6em, rounded corners, drop shadow]
+	\tikzstyle{sc} = [sensor, text width=13em, fill=red!20, 
+	minimum height=10em, rounded corners, drop shadow]
+	
+	% Define distances for bordering
+	\def\blockdist{2.3}
+	\def\edgedist{2.5}
+	
+	\begin{tikzpicture}
+	
+	% Learner
+	\node (learner) [sensor]  {Learner};
+	
+	% Reference
+	\node at ([xshift=-1.5cm]learner.west) (reference) {$r[n-1]$};
+	
+	% Learner Output
+	\node at ([xshift=0.9cm,yshift=-0.3cm]learner.east) (u) {$u[n-1]$};
+	
+	% Forward Model
+	\path (learner.east)+(\blockdist*1.2,0) node (forwardmodel) [sensor] {Forward Model};
+	
+	% States
+	\node at ([yshift=1.5cm]reference.north) (x) {$x[n-1]$};
+	
+	% States arrows to system
+	\path [draw, ->,thick] (x.east) -| (forwardmodel.north);
+	\path [draw, ->,thick] (x.east) -| (learner.north);	
+	
+	
+	% y, outputs
+	\node at ([xshift=1.2cm]forwardmodel.east) (y) {$\hat{y}[n]$};
+
+	\path [draw, ->,thick] (learner.east) --(forwardmodel.west);
+	
+	% Output of Linear Plant
+	\path [draw, ->,thick] (forwardmodel.east) -- ([xshift=0.8cm]forwardmodel.east) {};
+	
+	% Outline
+	\path [draw, - ,thick] ([xshift=-0.5cm,yshift=1cm]learner.west) --([xshift=0.5cm,yshift=1cm]forwardmodel.east) |- ([xshift=-0.5cm,yshift=-1cm]learner.west) -- ([xshift=-0.5cm,yshift=1cm]learner.west);
+	
+	%Composite learning system
+	\node at ([yshift=-0.8cm]forwardmodel.south) (y) {Composite learning system};
+
+	
+	
+	% Reference to Controller
+	\path [draw, ->,thick] (reference.east) -- (learner.west);
+	
+
+	\end{tikzpicture}
+	
+\end{document}

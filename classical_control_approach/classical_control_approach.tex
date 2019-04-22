@@ -1,0 +1,83 @@
+% System Combination
+% Harish K Krishnamurthy <www.ece.neu.edu/~hkashyap/>
+\documentclass[crop, tikz]{standalone}
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows,shadows}
+\usepackage{amsmath,bm,times}
+\newcommand{\mx}[1]{\mathbf{\bm{#1}}} % Matrix command
+\newcommand{\vc}[1]{\mathbf{\bm{#1}}} % Vector command
+
+\begin{document}
+	% Define the layers to draw the diagram
+	\pgfdeclarelayer{background}
+	\pgfdeclarelayer{foreground}
+	\pgfsetlayers{background,main,foreground}
+	
+	% Define block styles used later
+	
+	\tikzstyle{sensor}=[draw, fill=blue!20, text width=5em, 
+	text centered, minimum height=2.5em,drop shadow]
+	\tikzstyle{ann} = [above, text width=5em, text centered]
+	\tikzstyle{wa} = [sensor, text width=10em, fill=red!20, 
+	minimum height=6em, rounded corners, drop shadow]
+	\tikzstyle{sc} = [sensor, text width=13em, fill=red!20, 
+	minimum height=10em, rounded corners, drop shadow]
+	
+	% Define distances for bordering
+	\def\blockdist{2.3}
+	\def\edgedist{2.5}
+	
+	\begin{tikzpicture}
+	
+	% Controller
+	\node (controller) [sensor]  {Linear Controller};
+	
+	% Reference
+	\node at ([xshift=-1cm]controller.west) (reference) {$r$};
+	
+
+
+	% Controller Output
+	\node at ([xshift=0.25cm,yshift=-0.15cm]controller.east) (u) {$u^{*}$};
+	
+	% Nonlinear Plant
+	\path (controller.east)+(\blockdist/1.5,0) node (plant) [sensor] {Nonlinear Plant};
+	
+	% Linear Plant
+	\path (plant.north)+(0,\blockdist/2) node (estimate) [sensor] {Linear Plant};
+	
+		
+	% y, outputs
+	\node at ([xshift=0.75cm]plant.east) (y) {$\hat{y}$};
+
+	\path [draw, ->,thick] (controller.east) -- node [above] {} 
+	(plant.west);
+	
+	% Output of Linear Plant
+	\path [draw, ->,thick] (plant.east) -- ([xshift=0.5cm]plant.east) {};
+		
+	% input of plant to estimation
+	\path [draw, ->,thick] (plant.west) + (-0.25,0) |- (estimate.west);	
+	
+	% Output of Linear Plant
+	\path [draw, ->,thick] (estimate.east) -- ([xshift=0.5cm]estimate.east) {};
+		
+	% 	
+	\node at ([xshift=01cm]estimate.east) (ylinear) {$y^{*}$};	
+		
+	%output of plant to Controller, Feedback path
+	\path [draw, ->,thick] (plant.east) -| ([xshift=0.25cm,yshift=-1cm]plant.east) -- ([xshift=-0.5cm,yshift=-1cm]controller.west) |- ([yshift=-0.2cm]controller.west);
+	
+	
+	% Reference to Controller
+	\path [draw, ->,thick] (reference.east) -- (controller.west);
+	
+
+	
+	
+	
+	
+
+	\end{tikzpicture}
+	
+\end{document}
