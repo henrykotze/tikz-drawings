@@ -1,0 +1,79 @@
+% System Combination
+% Harish K Krishnamurthy <www.ece.neu.edu/~hkashyap/>
+\documentclass[crop, tikz]{standalone}
+
+
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows,shadows}
+\usetikzlibrary{arrows.meta}
+\usepackage{tikz-cd}
+\usepackage{amsmath,bm,times}
+\newcommand{\mx}[1]{\mathbf{\bm{#1}}} % Matrix command
+\newcommand{\vc}[1]{\mathbf{\bm{#1}}} % Vector command
+
+\def\circledarrow#1#2#3{ % #1 Style, #2 Center, #3 Radius
+	\draw[#1,->] (#2) +(80:#3) arc(80:-260:#3);
+}
+
+
+\begin{document}
+% Define the layers to draw the diagram
+\pgfdeclarelayer{background}
+\pgfdeclarelayer{foreground}
+\pgfsetlayers{background,main,foreground}
+
+% Define block styles used later
+
+\tikzstyle{sensor}=[draw, fill=red!20, text width=5em, 
+    text centered, minimum height=1em,sharp corners]
+   
+
+\tikzstyle{wa} = [sensor, text width=20em, fill=red!20, 
+    minimum height=6em, sharp corners]
+    
+\tikzstyle{lstm} = [sensor, text width=20em, fill=blue!20, 
+    minimum height=6em, sharp corners]
+    
+\tikzstyle{dense} = [sensor, text width=20em, fill=blue!20, 
+    minimum height=6em, sharp corners]
+    
+\tikzstyle{sc} = [sensor, text width=13em, fill=red!20, 
+    minimum height=10em, sharp corners]
+
+% Define distances for bordering
+\def\blockdist{2.3}
+\def\edgedist{2.5}
+
+\begin{tikzpicture}
+	% Features Input
+    \node (features) [wa]  {\textbf{ \Large{Normalised Noisy Observation}}\\ $[50,27]$ };
+    
+   \path (features.north)+(0,+\blockdist/1) node (dense) [dense] {\textbf{ \Large{Fully Connected ReLU}}\\ $[1024]$ };
+   
+   \path (dense.north)+(0,+\blockdist/1) node (LSTM) [lstm] {\textbf{\Large{LSTM}}\\ $[512]$ };
+   
+   \path (LSTM.north)+(0,+\blockdist/1) node (dense_ouput) [wa] {\textbf{\Large{Estimated Disturbance}}\\ $[3,1]$};
+
+
+   \path [draw, ->,ultra thick] (features.north) -- node [above] {} (dense.south) ;
+   
+   \path [draw, ->,ultra thick] (dense.north) -- node [above] {} (LSTM.south) ;
+   
+   \path [draw, ->,ultra thick] (LSTM.north) -- node [above] {} (dense_ouput.south) ;
+
+	\draw[->,>=latex',ultra thick] (LSTM.east) arc[radius=1cm,start angle=90,delta angle=-270];
+     
+    %\begin{pgfonlayer}{background}
+    %    \path (asr1.west |- asr1.north)+(-0.5,0.3) node (a) {};
+    %    \path (wa.south -| wa.east)+(+0.5,-0.3) node (b) {};
+    %    \path (vote.east |- asrs.east)+(+0.5,0.5) node (c) {};
+          
+     %   \path[fill=yellow!20,rounded corners, draw=black!50, dashed]
+      %      (a) rectangle (c);           
+      %  \path (asr1.north west)+(-0.2,0.2) node (a) {};
+            
+    %\end{pgfonlayer}
+    
+    \end{tikzpicture}
+    
+\end{document}

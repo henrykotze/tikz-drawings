@@ -1,0 +1,103 @@
+\documentclass[crop, tikz]{standalone}
+\usepackage{tikz}
+ \usepackage{amsmath}
+ \usepackage{bm}
+%\usepackage[active,tightpage]{preview}
+\usetikzlibrary{shapes,arrows.meta,calc,fit,backgrounds,shapes.multipart,positioning}
+\tikzset{box/.style={draw, rectangle, rounded corners, thick, node 
+		distance=7em, 
+		text width=6em, text centered, minimum height=3.5em}}
+%\tikzset{line/.style={draw, thick, -{Latex[length=2mm,width=1mm]}}}
+\tikzset{every node/.style={font=\scriptsize}}
+
+%\PreviewEnvironment{tikzpicture}
+%=======================================
+% Adjust the boarder of the flowchart
+%=======================================
+%\setlength\PreviewBorder{10pt}%
+
+\begin{document}
+	%************************************************************
+	%************************************************************
+	%  Define block styles
+	%************************************************************
+	%************************************************************
+	\tikzset{block/.style={rectangle split, draw, rectangle split parts=2,
+			text width=10em, text centered, rounded corners,minimum height=4em},
+		grnblock/.style={rectangle, draw, fill=green!20, text width=10em, text centered, rounded corners, minimum height=4em}, 
+		whtblock/.style={rectangle, draw, fill=white!20, text width=10em, text centered, minimum height=4em},    
+		line/.style={draw, -{Latex[length=2mm,width=1mm]}},
+		cloud/.style={draw, ellipse,fill=white!20, node distance=3cm, minimum height=4em},  
+		container/.style={draw, rectangle,dashed,inner sep=0.28cm, rounded corners,fill=yellow!20,minimum height=4cm}}
+	%************************************************************
+	%************************************************************ 
+	\begin{tikzpicture}[node distance = 1.25cm, auto]
+	%************************************************************
+	%***********************************************************
+
+	%===============================================    
+	%  PX4 EKF
+	%===============================================  
+	\node [block,node distance=7cm,rectangle split part fill={orange!20,blue!5},font=\fontsize{10}{0}\selectfont] (px4_ekf) {\textbf{PX4 EKF}
+		\nodepart[text width=3cm]{two}
+		Onboard\\};
+	%===============================================    
+	%===============================================    
+	%  Sensors
+	%===============================================  
+	\node [block,left of=px4_ekf,node distance=5cm,rectangle split part fill={orange!20,blue!5},font=\fontsize{10}{0}\selectfont] (sensors) {\textbf{Sensors}
+	\nodepart[text width=3cm]{two}
+	Acceleratometer\\
+	Gyroscope\\
+	GPS\\
+	Magnetometer\\
+};
+	%===============================================      
+	% ****************************************************
+	% ****************************************************
+	%===============================================    
+	%  Estimated States
+	%===============================================    
+	\node [block,right of= px4_ekf,node distance=5cm,rectangle split part fill={orange!20,blue!5},font=\fontsize{10}{0}\selectfont] (est_states) {\textbf{Estimated States}
+	\nodepart[text width=3cm]{two}
+	Quaternions\\
+	Velocity NED\\
+	Position NED\\
+	Sensor Biases\\ 
+	};	
+	
+	%===============================================    
+	%  Disturbance EKF
+	%===============================================    
+	\node [block,right of= est_states,node distance=5cm,rectangle split part fill={orange!20,blue!5},font=\fontsize{10}{0}\selectfont] (model_ekf) {\textbf{Model-based EKF}
+	\nodepart[text width=3cm]{two}
+	Offboard
+	};
+
+	%===============================================    
+	%  Disturbance Estimates
+	%===============================================    
+	\node [block,right of= model_ekf,node distance=5cm,rectangle split part fill={orange!20,blue!5},font=\fontsize{10}{0}\selectfont] (est_disturbed) {\textbf{Estimated Disturbance}
+	\nodepart[text width=3cm]{two}
+	Force\\
+	Torque\\
+	};
+	
+	%************************************************************
+	%************************************************************
+	%  Draw edges
+	%************************************************************
+	%************************************************************
+	%\path [line, bend right] (controlupdate.north) -- (measureUpdate.north);
+	\path [->,thick] (sensors.east) edge node [] {}  (px4_ekf.west);
+	\path [->,thick] (px4_ekf.east) edge node [] {}  (est_states.west);
+	\path [->,thick] (est_states.east) edge node [] {}  (model_ekf.west);
+	\path [->,thick] (model_ekf.east) edge node [] {}  (est_disturbed.west);
+	%\path [->,thick] (measureUpdate.south) edge[bend left=90] node [] {}  (controlupdate.south);
+	
+	
+	%\path [->,thick] (init.north) edge node [] {} ([xshift=-3cm]controlupdate.south);
+	\end{tikzpicture}
+\end{document}
+
+enter image description here

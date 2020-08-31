@@ -1,0 +1,121 @@
+% System Combination
+% Harish K Krishnamurthy <www.ece.neu.edu/~hkashyap/>
+\documentclass[crop, tikz]{standalone}
+
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows,shadows}
+\usepackage{amsmath,bm,times}
+\newcommand{\mx}[1]{\mathbf{\bm{#1}}} % Matrix command
+\newcommand{\vc}[1]{\mathbf{\bm{#1}}} % Vector command
+
+\begin{document}
+	% Define the layers to draw the diagram
+	\pgfdeclarelayer{background}
+	\pgfdeclarelayer{foreground}
+	\pgfsetlayers{background,main,foreground}
+	
+	% Define block styles used later
+	
+	\tikzstyle{sensor}=[draw, fill=blue!20, text width=3em, 
+	text centered, minimum height=2.5em,drop shadow]
+	\tikzstyle{longer_sensor}=[sensor,text width=5em, 
+	text centered, minimum height=2.5em,drop shadow]
+	\tikzstyle{ann} = [above, text width=5em, text centered]
+	\tikzstyle{wa} = [sensor, text width=10em, fill=red!20, 
+	minimum height=6em, rounded corners, drop shadow]
+	\tikzstyle{sc} = [sensor, text width=13em, fill=red!20, 
+	minimum height=10em, rounded corners, drop shadow]
+	
+	\tikzstyle{sum}=[draw, fill=blue!20, circle, node distance = 2cm]
+	
+	% Define distances for bordering
+	\def\blockdist{2.3}
+	\def\edgedist{2.5}
+	
+	\begin{tikzpicture}
+	
+	% Controller
+	\node (controller) [sensor]  {$D(s)$};
+	
+	% Summation feedback
+	\path (controller)+(-\blockdist/1.2,0) node (suma1) [sum]{\Large$\Sigma$};
+	
+	\path (suma1)+(-\blockdist/1.2,0) node (notch) [sensor]{$H_{2}(s)$};
+	
+	% Reference
+	\node at ([xshift=-1cm]notch.west) (reference) {$r$};
+
+	
+	% Summation feedforward
+	\path (controller)+(\blockdist/1.2,0) node (drf) [sensor]{$H_{1}(s)$};
+	
+	
+	% Plant
+	\path (drf.east)+(\blockdist/1.5,0) node (plant) [sensor] {$G(s)$};
+	
+
+	
+	% Controller Output
+	\node at ([xshift=0.25cm,yshift=0.15cm]drf.east) (u) {$u$};
+	
+	% Sensor noise sum
+	\path (plant)+(\blockdist/1.2,0) node (noise_sum) [sum]{\Large$\Sigma$};
+	
+	% Noise and disturbance summation
+%	\path (nn_model)+(1.2*\blockdist,0) node (noise_disturb_sum) [sum]{\Large$\Sigma$};	
+
+	
+	% Sensor Noise
+	\node at ([yshift=0.5cm]noise_sum.north) (sen_noise) {Sensor Noise};
+	
+	% Disturbances
+	\node at ([yshift=1cm]plant.north) (disurb) {Disturbances};
+	
+	% Plant Output
+	\node at ([xshift=1.5cm,yshift=0.2cm]noise_sum.east) (plant_output) {Plant Output};
+	
+	
+	
+	%===================================================================================
+	
+	% Plant Output Arrow
+	\path [draw, ->,thick] (noise_sum.east) -- ([xshift=2.5cm]plant.east);
+	
+	% Reference input to  reference model
+%	\path [draw, ->,thick] ([xshift=0.4cm]reference.east) |- (ref_model.west);
+	
+	% disturbances to plant
+	\path [draw, ->,thick] (disurb.south) -- (plant.north);
+	
+	% Sensor noise to noise sum
+	\path [draw, ->,thick] (sen_noise.south) -- (noise_sum.north);	
+
+	
+	% Controller to feedforward sum
+	\path [draw, ->,thick] (controller.east) -- (drf.west);
+	
+
+	% output of plant noise sum
+	\path [draw, ->,thick] (plant.east) -- (noise_sum.west);
+	
+
+	% sum to Controller
+	\path [draw, ->,thick] (suma1.east) -- (controller.west);
+		% sum to Controller
+	\path [draw, ->,thick] (notch.east) -- (suma1.west);
+	
+	
+	% Reference so Feedback sum
+	\path [draw, ->,thick] (reference.east) -- (notch.west);
+	
+	
+	
+	% Feedforward sum to plant
+	\path [draw,->,thick] (drf.east) -- (plant.west);
+	
+	% Noise plant output to ESO
+	\path [draw,->,thick] ([xshift=0.5cm]noise_sum.east) |- ([yshift=-1cm]suma1.south) -- (suma1.south);
+	
+	\end{tikzpicture}
+	
+\end{document}}

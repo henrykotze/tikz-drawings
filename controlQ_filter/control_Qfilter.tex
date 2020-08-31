@@ -1,0 +1,149 @@
+% System Combination
+% Harish K Krishnamurthy <www.ece.neu.edu/~hkashyap/>
+\documentclass[crop, tikz]{standalone}
+
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows,shadows}
+\usepackage{amsmath,bm,times}
+\newcommand{\mx}[1]{\mathbf{\bm{#1}}} % Matrix command
+\newcommand{\vc}[1]{\mathbf{\bm{#1}}} % Vector command
+
+\begin{document}
+	% Define the layers to draw the diagram
+	\pgfdeclarelayer{background}
+	\pgfdeclarelayer{foreground}
+	\pgfsetlayers{background,main,foreground}
+	
+	% Define block styles used later
+	
+	\tikzstyle{sensor}=[draw, fill=blue!20, text width=5em, 
+	text centered, minimum height=2.5em,drop shadow]
+	\tikzstyle{ann} = [above, text width=5em, text centered]
+	\tikzstyle{wa} = [sensor, text width=10em, fill=red!20, 
+	minimum height=6em, rounded corners, drop shadow]
+	\tikzstyle{sc} = [sensor, text width=13em, fill=red!20, 
+	minimum height=10em, rounded corners, drop shadow]
+	
+	\tikzstyle{qfilters} = [sensor, text width=5em, text width=2.5em]
+	
+	
+	\tikzstyle{sum}=[draw, fill=blue!20, circle, node distance = 2cm]
+	
+	% Define distances for bordering
+	\def\blockdist{2.3}
+	\def\edgedist{2.5}
+	
+	\begin{tikzpicture}
+	
+	% Controller
+	\node (controller) [sensor]  {$D(s)$};
+	
+	% Adaption
+	%\path (controller.south)+(0,-\blockdist/1.5) node (adapt) [sensor] {Adapation Algorithm};
+
+	
+	% Summation feedback
+	\path (controller)+(-\blockdist/1.2,0) node (suma1) [sum]{\Large$\Sigma$};
+	
+	% Reference
+	\node at ([xshift=-1cm]suma1.west) (reference) {$r$};
+
+	
+	% Summation feedforward
+	\path (controller)+(\blockdist/1.2,0) node (suma2) [sum]{\Large$\Sigma$};
+	
+	% Plant
+	\path (suma2.east)+(1.7*\blockdist,0) node (plant) [sensor] {$G(s)$};
+	
+	
+	\node at ([xshift=1.5cm,yshift=-0.5*\blockdist cm]plant)[qfilters] (q_filter1) {$Q(s)$};
+	
+	\node at ([xshift=1.5cm]q_filter1)[qfilters] (q_filter1_pare) {$H(s)$};
+	
+	
+
+ 	\node at ([xshift=-1.5cm,yshift=-0.5*\blockdist cm]plant)[qfilters] (q_filter) {$Q(s)$};
+ 	
+ 	\node at ([xshift=-1.5cm]q_filter)[qfilters] (q_filter_pare) {$F(s)$};
+ 	
+ 	% Summation feedforward
+ 	\path (plant)+(0,-0.5*\blockdist cm) node (q_sum) [sum]{\Large$\Sigma$};
+ 	
+	\node at ([xshift=-0.1cm,yshift=0.3cm]q_sum.west) (q_sum_p) {$-$};
+	\node at ([xshift=0.1cm,yshift=0.3cm]q_sum.east) (q_sum_p) {$+$};
+	
+	% Controller Output
+	\node at ([xshift=0.25cm,yshift=0.15cm]suma2.east) (u) {$u$};
+	
+	% Sensor noise sum
+	\path (plant)+(1.5*\blockdist,0) node (noise_sum) [sum]{\Large$\Sigma$};
+	
+	% Noise and disturbance summation
+%	\path (nn_model)+(1.2*\blockdist,0) node (noise_disturb_sum) [sum]{\Large$\Sigma$};	
+
+	
+	% Sensor Noise
+	\node at ([yshift=0.5cm]noise_sum.north) (sen_noise) {Sensor Noise};
+	
+	% Disturbances
+	\node at ([yshift=1cm]plant.north) (disurb) {Disturbances};
+	
+	% Plant Output
+	\node at ([xshift=1.5cm,yshift=0.2cm]noise_sum.east) (plant_output) {Plant Output};
+	
+	% Tracking Error
+%	\node at ([xshift=2.2cm,yshift=0.5cm]ref_model.north) (plant_output) {Tracking Error};
+	
+	
+	
+	
+	%===================================================================================
+	
+	% Plant Output Arrow
+	\path [draw, ->,thick] (noise_sum.east) -- ([xshift=5cm]plant.east);
+	
+	% Reference input to  reference model
+%	\path [draw, ->,thick] ([xshift=0.4cm]reference.east) |- (ref_model.west);
+	
+	% disturbances to plant
+	\path [draw, ->,thick] (disurb.south) -- (plant.north);
+	
+	% Sensor noise to noise sum
+	\path [draw, ->,thick] (sen_noise.south) -- (noise_sum.north);	
+
+	
+	% Controller to feedforward sum
+	\path [draw, ->,thick] (controller.east) -- (suma2.west);
+	
+
+	% output of plant noise sum
+	\path [draw, ->,thick] (plant.east) -- (noise_sum.west);
+	\label{key}
+	% sum to Controller
+	\path [draw, ->,thick] (suma1.east) -- (controller.west);
+	
+	% Reference so Feedback sum
+	\path [draw, ->,thick] (reference.east) -- (suma1.west);
+	
+
+	\path [draw,->,thick] (suma2.east) -- (plant.west);
+
+	\path [draw,->,thick] ([xshift=0.5cm]noise_sum.east) |- (q_filter1_pare.east);
+	
+
+	\path [draw,->,thick] ([xshift=0.5cm]noise_sum.east) |- ([yshift=-1cm]q_filter1_pare.west) -| (suma1.south);
+
+	\path [draw,->,thick] (q_filter1_pare.west) -- (q_filter1.east);
+	\path [draw,->,thick] (q_filter1_pare.west) -- (q_filter1.east);
+	
+	\path [draw,->,thick] (q_filter1.west) -- (q_sum.east);
+	\path [draw,->,thick] (q_filter.east) -- (q_sum.west);
+	\path [draw,->,thick] (q_filter_pare.east) -- (q_filter.west);
+	
+	\path [draw,->,thick] ([xshift=0.1cm]suma2.east) |- (q_filter_pare.west);
+	
+	\path [draw,->,thick] (q_sum.south) |- ([yshift=-20*\blockdist]suma2.south) --  (suma2.south); 
+	
+	\end{tikzpicture}
+	
+\end{document}}

@@ -1,0 +1,172 @@
+% System Combination
+% Harish K Krishnamurthy <www.ece.neu.edu/~hkashyap/>
+\documentclass[crop, tikz]{standalone}
+
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows,shadows}
+\usepackage{amsmath,bm,times}
+\newcommand{\mx}[1]{\mathbf{\bm{#1}}} % Matrix command
+\newcommand{\vc}[1]{\mathbf{\bm{#1}}} % Vector command
+
+\pgfdeclarelayer{background}
+\pgfdeclarelayer{foreground}
+\pgfsetlayers{background,main,foreground}
+
+\begin{document}
+	% Define the layers to draw the diagram
+	\pgfdeclarelayer{background}
+	\pgfdeclarelayer{foreground}
+	\pgfsetlayers{background,main,foreground}
+	
+	% Define block styles used later
+	
+	\tikzstyle{sensor}=[draw, fill=blue!20, text width=5em, 
+	text centered, minimum height=2.5em,drop shadow]
+	\tikzstyle{ann} = [above, text width=5em, text centered]
+	\tikzstyle{wa} = [sensor, text width=10em, fill=red!20, 
+	minimum height=6em, rounded corners, drop shadow]
+	\tikzstyle{sc} = [sensor, text width=13em, fill=red!20, 
+	minimum height=10em, rounded corners, drop shadow]
+	
+	\tikzstyle{sum}=[draw, fill=blue!20, circle, node distance = 2cm]
+	
+	% Define distances for bordering
+	\def\blockdist{2.3}
+	\def\edgedist{2.5}
+	
+	\begin{tikzpicture}
+	
+	% Controller
+	\node (controller) [sensor]  {$D_{i}(s)$};
+	
+	% Adaption
+	%\path (controller.south)+(0,-\blockdist/1.5) node (adapt) [sensor] {Adapation Algorithm};
+
+	
+	% Summation feedback
+	\path (controller)+(-\blockdist/1.2,0) node (suma1) [sum]{\Large$\Sigma$};
+	
+	% Outer Contrller
+	\path (suma1.west)+(-1*\blockdist,0) node (outercontroller) [sensor] {$D_{o}(s)$};
+	
+	\path (outercontroller)+(-\blockdist/1.2,0) node (outersuma) [sum]{\Large$\Sigma$};
+	
+		\node at ([xshift=-0.75cm]outersuma.west) (outerreference) {$r_{o}$};
+
+	% Reference
+	\node at ([xshift=-0.75cm,yshift=0.25cm]suma1.west) (reference) {$r_{i}$};
+
+	
+	% Summation feedforward
+	\path (controller)+(\blockdist/1.2,0) node (suma2) [sum]{\Large$\Sigma$};
+	
+	% Plant
+	\path (suma2.east)+(\blockdist/1.5,0) node (plant) [sensor] {$G(s)$};
+	
+	
+	\node at ([yshift=-1.2*\blockdist cm]plant.south)[sensor] (c1) {$C_{i}$};
+	
+		\node at ([yshift=-1.9*\blockdist cm]plant.south)[sensor] (c2) {$C_{o}$};
+	
+	
+	% NN Inverse Plant Model
+	\node at ([yshift=-\blockdist cm]plant.north)[sensor] (inverse_model) {Disturbance Observer};
+	
+	% Reference Model
+	%\node at ([yshift=-0.5*\blockdist cm]inverse_model.south)[sensor] (ref_model) {Reference Model};
+	
+	% Reference Model summation
+%	\path (ref_model)+(1.7*\blockdist,0.8cm) node (ref_sum) [sum]{\Large$\Sigma$};
+	
+	% Controller Output
+	\node at ([xshift=0.25cm,yshift=0.15cm]suma2.east) (u) {$u$};
+	
+	% Sensor noise sum
+	\path (plant)+(\blockdist/1.2,0) node (noise_sum) [sum]{\Large$\Sigma$};
+	
+	% Noise and disturbance summation
+%	\path (nn_model)+(1.2*\blockdist,0) node (noise_disturb_sum) [sum]{\Large$\Sigma$};	
+
+	
+	% Sensor Noise
+	\node at ([yshift=0.5cm]noise_sum.north) (sen_noise) {Sensor Noise};
+	
+	% Disturbances
+	\node at ([yshift=1cm]plant.north) (disurb) {Disturbances};
+	
+	% Plant Output
+	\node at ([xshift=2cm,yshift=0.2cm]noise_sum.east) (plant_output) {Plant Output};
+	
+	% Tracking Error
+%	\node at ([xshift=2.2cm,yshift=0.5cm]ref_model.north) (plant_output) {Tracking Error};
+	
+	
+	
+	
+	%===================================================================================
+	
+	% Plant Output Arrow
+	\path [draw, ->,thick] (noise_sum.east) -- ([xshift=2.5cm]plant.east);
+	
+	
+	% disturbances to plant
+	\path [draw, ->,thick] (disurb.south) -- (plant.north);
+	
+	% Sensor noise to noise sum
+	\path [draw, ->,thick] (sen_noise.south) -- (noise_sum.north);	
+
+	
+	% Controller to feedforward sum
+	\path [draw, ->,thick] (controller.east) -- (suma2.west);
+	
+
+	% output of plant noise sum
+	\path [draw, ->,thick] (plant.east) -- (noise_sum.west);
+	
+
+	% sum to Controller
+	\path [draw, ->,thick] (suma1.east) -- (controller.west);
+	
+	% Reference so Feedback sum
+	\path [draw, ->,thick] (outerreference.east) -- (outersuma.west);
+	
+	
+	% NN Model to Feedforward Summation
+	\path [draw,->,thick] (inverse_model.west) -| (suma2.south);
+	
+	
+	% Feedforward sum to plant
+	\path [draw,->,thick] (suma2.east) -- (plant.west);
+	
+
+	\path [draw,->,thick] ([xshift=0.5cm]noise_sum.east) |- (inverse_model.east);
+	
+
+	\path [draw,->,thick] ([xshift=0.5cm]noise_sum.east) |- (c1.east);
+	\path [draw,->,thick] (c1.west) -| (suma1.south);
+	
+	\path [draw,->,thick] ([xshift=0.5cm]noise_sum.east) |- (c2.east);
+	\path [draw,->,thick] (c2.west) -| (outersuma.south);
+	
+	\path [draw,->,thick] (outersuma.east) -- (outercontroller.west);
+	\path [draw,->,thick] (outercontroller.east) -- (suma1.west);
+	
+	
+	
+	%======================================================================================================
+	
+	   \begin{pgfonlayer}{background}
+	\path ([xshift=-0.5cm,yshift=0.7cm]suma1.west) node (a) {};
+	\path ([xshift=1cm,yshift=-4cm]noise_sum.east) node (c) {};
+	
+	\path[fill=yellow!20,rounded corners, draw=black!50, dashed]
+	(a) rectangle (c);           
+%	\path (asr1.north west)+(-0.2,0.2) node (a) {};
+	
+	\end{pgfonlayer}
+	\node at ([yshift=-3.3cm]controller.south) (reference) {Inner Loop};
+	
+	
+	\end{tikzpicture}
+	
+\end{document}}

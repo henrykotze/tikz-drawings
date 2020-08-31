@@ -1,0 +1,92 @@
+\documentclass[crop, tikz]{standalone}
+\usepackage{tikz}
+ \usepackage{amsmath}
+ \usepackage{bm}
+%\usepackage[active,tightpage]{preview}
+\usetikzlibrary{shapes,arrows.meta,calc,fit,backgrounds,shapes.multipart,positioning}
+\tikzset{box/.style={draw, rectangle, rounded corners, thick, node 
+		distance=7em, 
+		text width=6em, text centered, minimum height=3.5em}}
+%\tikzset{line/.style={draw, thick, -{Latex[length=2mm,width=1mm]}}}
+\tikzset{every node/.style={font=\scriptsize}}
+
+%\PreviewEnvironment{tikzpicture}
+%=======================================
+% Adjust the boarder of the flowchart
+%=======================================
+%\setlength\PreviewBorder{10pt}%
+
+\begin{document}
+	%************************************************************
+	%************************************************************
+	%  Define block styles
+	%************************************************************
+	%************************************************************
+	\tikzset{block/.style={rectangle split, draw, rectangle split parts=2,
+			text width=14em, text centered, rounded corners, minimum height=4em},
+		grnblock/.style={rectangle, draw, fill=green!20, text width=10em, text centered, rounded corners, minimum height=4em}, 
+		whtblock/.style={rectangle, draw, fill=white!20, text width=10em, text centered, minimum height=4em},    
+		line/.style={draw, -{Latex[length=2mm,width=1mm]}},
+		cloud/.style={draw, ellipse,fill=white!20, node distance=3cm,    minimum height=4em},  
+		container/.style={draw, rectangle,dashed,inner sep=0.28cm, rounded
+			corners,fill=yellow!20,minimum height=4cm}}
+	%************************************************************
+	%************************************************************ 
+	\begin{tikzpicture}[node distance = 1.25cm, auto]
+	%************************************************************
+	%************************************************************
+	%  Draw nodes
+	%************************************************************
+	%************************************************************
+	
+	% ****************************************************
+	% ****************************************************
+	%===============================================    
+	%  Microscale: FEM
+	%===============================================  
+ 
+	%===============================================    
+	%  Control Update
+	%===============================================  
+	\node [block,node distance=7cm,rectangle split part fill={orange!20,blue!5},font=\fontsize{10}{0}\selectfont] (controlupdate) {\textbf{Control Update}
+		\nodepart[text width=7cm]{two}
+		(1) Project the state ahead:\\
+		$\bar{\bm{X}}_{k}^{-} = \bm{f}(\bar{\bm{X}}_{k-1}^{+}, \bm{u}_{k-1})$\\
+		(2) Project the error covariance ahead:\\
+		$\bm{P}^{-}_{k} = \bm{F}_{k}\bm{P}^{+}_{k-1}\bm{F}^{T}_{k} + \bm{Q}_{k}$};
+	%===============================================    
+	%  CoefTens Compute
+	%===============================================      
+	\node [whtblock,left of=controlupdate,distance=2cm,below of=controlupdate, node distance=3cm,font=\fontsize{9}{0}\selectfont] (init) {Initial estimates for \\ $\bar{\bm{X}}_{k-1}^{+}$ and $\bm{P}^{-}_{k}$};
+	
+	% ****************************************************
+	% ****************************************************
+	%===============================================    
+	%  Measurement Update
+	%===============================================    
+	\node [block,right of= controlupdate,node distance=8cm,rectangle split part fill={orange!20,blue!5},font=\fontsize{10}{0}\selectfont] (measureUpdate) {\textbf{Measurement Update}
+	\nodepart[text width=7cm]{two}
+	(1) Compute the Kalman gain:\\
+	$\bm{L}_{k} = \bm{P}^{-}_{k}\bm{H}^{T}_{k}(\bm{H}_{k}\bm{P}^{-}_{k}\bm{H}^{T}_{k} + \bm{R}_{k})^{-1}$\\
+	(2) Update estimate with measurement:\\
+	$\bar{\bm{X}}_{k}^{+} = \bar{\bm{X}}_{k}^{-} +\bm{L}_{k} \big[\bm{y}_{k} - \bm{h}(\bm{X}_{k}^{-})\big]$\\
+	(3) Update the error covariance:\\
+	$\bm{P}^{+}_{k} = (\bm{I} - \bm{L}_{k}\bm{H}_{k})\bm{P}^{-}_{k}$
+	};
+	
+	%************************************************************
+	%************************************************************
+	%  Draw edges
+	%************************************************************
+	%************************************************************
+	%\path [line, bend right] (controlupdate.north) -- (measureUpdate.north);
+	\path [->,thick] (controlupdate.north) edge[bend left=90] node [] {}  (measureUpdate.north);
+	
+	\path [->,thick] (measureUpdate.south) edge[bend left=90] node [] {}  (controlupdate.south);
+	
+	
+	\path [->,thick] (init.north) edge node [] {} ([xshift=-3cm]controlupdate.south);
+	\end{tikzpicture}
+\end{document}
+
+enter image description here

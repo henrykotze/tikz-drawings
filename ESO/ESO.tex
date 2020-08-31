@@ -1,0 +1,141 @@
+\documentclass[crop, tikz]{standalone}
+\usepackage{tikz}
+ \usepackage{amsmath}
+ \usepackage{bm}
+%\usepackage[active,tightpage]{preview}
+\usetikzlibrary{shapes,arrows.meta,calc,fit,backgrounds,shapes.multipart,positioning}
+\tikzset{box/.style={draw, rectangle, rounded corners, thick, node 
+		distance=7em, 
+		text width=6em, text centered, minimum height=3.5em}}
+%\tikzset{line/.style={draw, thick, -{Latex[length=2mm,width=1mm]}}}
+\tikzset{every node/.style={font=\scriptsize}}
+
+%\PreviewEnvironment{tikzpicture}
+%=======================================
+% Adjust the boarder of the flowchart
+%=======================================
+%\setlength\PreviewBorder{10pt}%
+
+\begin{document}
+	%************************************************************
+	%************************************************************
+	%  Define block styles
+	%************************************************************
+	%************************************************************
+	\tikzset{block/.style={rectangle split, draw, rectangle split parts=2,
+			text width=10em, text centered, rounded corners, minimum height=4em},
+		grnblock/.style={rectangle, draw, fill=blue!5, text width=2em, text centered, rounded corners, minimum height=2em}, 
+		whtblock/.style={rectangle, draw, fill=white!20, text width=10em, text centered, minimum height=4em},    
+		line/.style={draw, -{Latex[length=2mm,width=1mm]}},
+		cloud/.style={draw, ellipse,fill=white!20, node distance=3cm,    minimum height=4em},  
+		container/.style={draw, rectangle,dashed,inner sep=0.28cm, rounded
+			corners,fill=yellow!20,minimum height=4cm}}
+	
+	\tikzstyle{sum}=[draw, fill=blue!5, circle, node distance = 2cm]
+	%************************************************************
+	%************************************************************ 
+	\begin{tikzpicture}[node distance = 1.25cm, auto]
+	%************************************************************
+	%************************************************************
+	%  Draw nodes
+	%************************************************************
+	%***********************************************************
+ 
+	%===============================================    
+	%  Nonlinear Process
+	%===============================================  
+	\node [block,node distance=3cm,rectangle split part fill={orange!20,blue!5},font=\fontsize{10}{0}\selectfont] (process) {\textbf{Nonlinear Process}
+		\nodepart[text width=3cm]{two}
+	$\dot{\bm{x}} = \bm{f}(\bm{x},u)$};
+	%===============================================    
+	%  Linear Model
+	%===============================================  
+	\node [block,below of=process,node distance=1.5cm,rectangle split part fill={orange!20,blue!5},font=\fontsize{10}{0}\selectfont] (model) {\textbf{Linear Model}
+	\nodepart[text width=5cm]{two}
+	$\dot{\bm{\hat{x}}} = \bm{A}\bm{\hat{x}} + \bm{B}u+\bm{L}(y - \bm{C}\bm{\hat{x}})$};
+	%===============================================    
+	% Integrator
+	%===============================================      
+	\node [grnblock,right of=process, node distance=4cm,font=\fontsize{9}{0}\selectfont] (int_1) {
+	$\bm{\frac{1}{s}}$};	
+	%===============================================    
+	% Integrator
+	%===============================================      
+	\node [grnblock,below of=int_1, node distance=1.5cm,font=\fontsize{9}{0}\selectfont] (int_2) {
+	$\bm{\frac{1}{s}}$};
+	%===============================================    
+	% C Matrix
+	%===============================================      
+	\node [grnblock,right of=int_1, node distance=1.5cm,font=\fontsize{9}{0}\selectfont] (Cmatrix) {
+	$\bm{C}$};
+	%===============================================    
+	% estimated C Matrix
+	%===============================================      
+	\node [grnblock,below of=Cmatrix, node distance=1.5cm,font=\fontsize{9}{0}\selectfont] (Cmatrix_est) {
+	$\bm{C}$};
+	%===============================================    
+	% A Matrix
+	%===============================================      
+	\node [grnblock,below of=model, node distance=1cm,font=\fontsize{9}{0}\selectfont] (Amatrix) {
+	$\bm{A}$};
+	%===============================================    
+	% B Matrix
+	%===============================================      
+	\node [grnblock,font=\fontsize{9}{0}\selectfont] (Bmatrix) at ([xshift=-1.5cm,yshift=0.1cm]model.west){
+	$\bm{B}$};
+	%===============================================    
+	% L gain
+	%===============================================      
+	\node [grnblock,below of=Cmatrix_est, node distance=1.5cm,font=\fontsize{9}{0}\selectfont] (Lgain) {
+	$\bm{L}$};
+	%===============================================    
+	% Summation 1
+	%===============================================
+	\node [sum,right of=Cmatrix_est, node distance=1.5cm,font=\fontsize{9}{0}\selectfont] (error_sum) {
+	$\sum$}; 
+	%===============================================    
+	% Control Signal
+	%===============================================
+	\node [left of=process, node distance=4.5cm,font=\fontsize{9}{0}\selectfont] (control) {$u$}; 
+
+	
+
+	%************************************************************
+	%************************************************************
+	%  Draw edges
+	%************************************************************
+	%************************************************************
+	\path [->,thick] (process.east) edge node [] {}  (int_1.west);
+	\path [->,thick] (int_1.east) edge node [] {}  (Cmatrix.west);
+	\draw [->,thick] (Cmatrix.east) -| (error_sum.north);
+	\draw [->,thick] (error_sum.south) |- (Lgain.east);
+	\draw [-,thick] (Lgain.west) -| ([xshift=-0.5cm,yshift=-0.1cm]model.west);
+	\draw [->,thick] ([xshift=-0.5cm,yshift=-0.1cm]model.west) -- ([yshift=-0.1cm]model.west);
+	
+	\draw [->,thick] (model.east) |- (int_2.west);
+	\draw [->,thick] (int_2.east) |- (Cmatrix_est.west);
+	\draw [->,thick] (Cmatrix_est.east) |- (error_sum.west);
+	
+	\draw [->,thick] ([xshift=0.2cm]int_2.east) |- (Amatrix.east);
+	\draw [-,thick] (Amatrix.west) -| ([xshift=-0.25cm,yshift=-0.75cm]model.west);
+	\draw [->,thick] ([xshift=-0.25cm,yshift=-0.75cm]model.west) |- ([yshift=-0.3cm]model.west);
+	
+%	\draw [-,thick] ([xshift=0.2cm]int_1.east) |- ([xshift=-0.25cm,yshift=0.75cm]model.west);
+%	\draw [->,thick] ([xshift=-0.25cm,yshift=0.75cm]model.west) |- ([yshift=0.3cm]model.west);
+	
+	\draw [-,thick] ([xshift=0.2cm]int_1.east) |- ([xshift=-0.25cm,yshift=-0.75cm]process.west);
+	\draw [->,thick] ([xshift=-0.25cm,yshift=-0.75cm]process.west) |- ([yshift=-0.3cm]process.west);
+	
+	\draw [->,thick] ([xshift=-2.5cm]process.west) -- (process.west);
+	\draw [->,thick] ([xshift=-2.5cm]process.west) -| (Bmatrix.north);
+	\draw [->,thick] (Bmatrix.east) -- ([yshift=0.1cm]model.west);
+	
+	
+	%\path [->,thick] (measureUpdate.south) edge[bend left=90] node [] {}  (controlupdate.south);
+	
+	
+%	\path [->,thick] (init.north) edge node [] {} ([xshift=-3cm]controlupdate.south);
+	\end{tikzpicture}
+\end{document}
+
+enter image description here

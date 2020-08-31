@@ -1,0 +1,123 @@
+% System Combination
+% Harish K Krishnamurthy <www.ece.neu.edu/~hkashyap/>
+\documentclass[crop, tikz]{standalone}
+
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows,shadows}
+\usepackage{amsmath,bm,times}
+\newcommand{\mx}[1]{\mathbf{\bm{#1}}} % Matrix command
+\newcommand{\vc}[1]{\mathbf{\bm{#1}}} % Vector command
+
+\pgfdeclarelayer{background}
+\pgfdeclarelayer{foreground}
+\pgfsetlayers{background,main,foreground}
+
+\begin{document}
+	% Define the layers to draw the diagram
+	\pgfdeclarelayer{background}
+	\pgfdeclarelayer{foreground}
+	\pgfsetlayers{background,main,foreground}
+	
+	% Define block styles used later
+	
+	\tikzstyle{sensor}=[draw, fill=blue!20, text width=5em, 
+	text centered, minimum height=2.5em,drop shadow]
+	\tikzstyle{ann} = [above, text width=5em, text centered]
+	\tikzstyle{wa} = [sensor, text width=10em, fill=red!20, 
+	minimum height=6em, rounded corners, drop shadow]
+	\tikzstyle{sc} = [sensor, text width=13em, fill=red!20, 
+	minimum height=10em, rounded corners, drop shadow]
+	
+	\tikzstyle{sum}=[draw, fill=blue!20, circle, node distance = 2cm]
+	
+	% Define distances for bordering
+	\def\blockdist{2.3}
+	\def\edgedist{2.5}
+	
+	\begin{tikzpicture}
+	
+	% Controller
+	\node (controller) [sensor]  {$D_{i}(s)$};
+	
+	
+	% Summation feedback
+	\path (controller)+(-\blockdist/1.2,0) node (suma1) [sum]{\Large$\Sigma$};
+	
+	% Outer Contrller
+	\path (suma1.west)+(-1*\blockdist,0) node (outercontroller) [sensor] {$D_{o}(s)$};
+	
+	\path (outercontroller)+(-\blockdist/1.2,0) node (outersuma) [sum]{\Large$\Sigma$};
+	
+	\node at ([xshift=-0.75cm]outersuma.west) (outerreference) {$r_{o}$};
+
+	% Reference
+	\node at ([xshift=-0.75cm,yshift=0.25cm]suma1.west) (reference) {$r_{i}$};
+
+
+	
+	% Plant
+	\path (controller.east)+(\blockdist/1.5,0) node (plant) [sensor] {$G(s)$};
+	
+	
+	\node at ([yshift=-0.5*\blockdist cm]plant.south)[sensor] (c1) {$C_{i}$};
+	
+	\node at ([yshift=-1.2*\blockdist cm]plant.south)[sensor] (c2) {$C_{o}$};
+	
+
+	% Controller Output
+	\node at ([xshift=0.25cm,yshift=0.15cm]controller.east) (u) {$u$};
+	
+	
+
+	% Plant Output
+	\node at ([xshift=2cm,yshift=0.2cm]plant.east) (plant_output) {Plant Output};
+	
+	
+	
+	
+	%===================================================================================
+	
+	% Plant Output Arrow
+	\path [draw, ->,thick] (plant.east) -- ([xshift=2.5cm]plant.east);
+	
+	
+	% Controller to feedforward sum
+	\path [draw, ->,thick] (controller.east) -- (plant.west);
+
+
+	% sum to Controller
+	\path [draw, ->,thick] (suma1.east) -- (controller.west);
+	
+	% Reference so Feedback sum
+	\path [draw, ->,thick] (outerreference.east) -- (outersuma.west);
+	
+	
+
+	\path [draw,->,thick] ([xshift=0.5cm]plant.east) |- (c1.east);
+	\path [draw,->,thick] (c1.west) -| (suma1.south);
+	
+	\path [draw,->,thick] ([xshift=0.5cm]plant.east) |- (c2.east);
+	\path [draw,->,thick] (c2.west) -| (outersuma.south);
+	
+	\path [draw,->,thick] (outersuma.east) -- (outercontroller.west);
+	\path [draw,->,thick] (outercontroller.east) -- (suma1.west);
+	
+	
+	
+	%======================================================================================================
+	
+	   \begin{pgfonlayer}{background}
+	\path ([xshift=-0.5cm,yshift=0.7cm]suma1.west) node (a) {};
+	\path ([xshift=1cm,yshift=-2.2cm]plant.east) node (c) {};
+	
+	\path[fill=yellow!20,rounded corners, draw=black!50, dashed]
+	(a) rectangle (c);           
+%	\path (asr1.north west)+(-0.2,0.2) node (a) {};
+	
+	\end{pgfonlayer}
+	\node at ([yshift=-1.5cm]controller.south) (reference) {Inner Loop};
+	
+	
+	\end{tikzpicture}
+	
+\end{document}}
